@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {name}
+  labels:
+    type: iotdb-set
+    instance: {name}
+spec:
+  ports:
+    - port: 6667
+      name: iotdb-external
+  selector:
+    type: iotdb-set
+    instance: {name}
+  type: LoadBalancer
+

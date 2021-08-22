@@ -1,0 +1,9 @@
+apiVersion: jfeinauer.dev/v1
+kind: IoTDBRelease
+metadata:
+  name: my-new-itodb
+  labels:
+    creator: julian
+spec:
+  adminPassword: "Hallo"
+  image: "apache/iotdb:0.11.2"

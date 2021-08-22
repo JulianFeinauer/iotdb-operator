@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {name}-headless
+  labels:
+    type: iotdb-set
+    instance: {name}
+spec:
+  clusterIP: None
+  type: ClusterIP
+  ports:
+    - port: 6667
+      name: iotdb-external
+  selector:
+    type: iotdb-set
+    instance: {name}

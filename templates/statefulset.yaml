@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {name}
+spec:
+  selector:
+    matchLabels:
+      type: iotdb-set
+      instance: {name}
+  serviceName: {name}
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        type: iotdb-set
+        instance: {name}
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: iotdb
+          image: {image}
+          ports:
+            - containerPort: 6667
+              name: iotdb
+          volumeMounts:
+            - name: storage
+              mountPath: /iotdb/data
+          # TODO Improve the Readiness Probe
+          readinessProbe:
+            tcpSocket:
+              port: 6667
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 6667
+            initialDelaySeconds: 10
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
