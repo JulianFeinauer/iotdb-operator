@@ -7,3 +7,5 @@ metadata:
 spec:
   adminPassword: "Hallo"
   image: "apache/iotdb:0.11.2"
+  engine-config:
+    enable_wal: "false"

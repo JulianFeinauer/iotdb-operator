@@ -25,6 +25,8 @@ spec:
           volumeMounts:
             - name: storage
               mountPath: /iotdb/data
+            - name: config-volume
+              mountPath: /iotdb/conf
           # TODO Improve the Readiness Probe
           readinessProbe:
             tcpSocket:
@@ -36,6 +38,10 @@ spec:
               port: 6667
             initialDelaySeconds: 10
             periodSeconds: 10
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {name}-config
   volumeClaimTemplates:
     - metadata:
         name: storage

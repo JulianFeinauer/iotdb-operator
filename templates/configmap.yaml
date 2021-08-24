@@ -1,0 +1,1218 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {name}-config
+data:
+  iotdb-engine.properties: |+
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    ####################
+    ### Web Page Configuration
+    ####################
+
+    enable_metric_service=false
+
+    metrics_port=8181
+
+    query_cache_size_in_metric=50
+
+    ####################
+    ### RPC Configuration
+    ####################
+
+    rpc_address=0.0.0.0
+
+    rpc_port=6667
+
+    rpc_thrift_compression_enable=false
+
+    rpc_max_concurrent_client_num=65535
+
+    # thrift max frame size, 64MB by default
+    thrift_max_frame_size=67108864
+
+    # thrift init buffer size, the default is 1KB.
+    thrift_init_buffer_size=1024
+
+    ####################
+    ### Write Ahead Log Configuration
+    ####################
+
+    # Is insert ahead log enable
+    enable_wal=true
+
+    # Add a switch to drop ouf-of-order data
+    # Out-of-order data will impact the aggregation query a lot. Users may not care about discarding some out-of-order data.
+    enable_discard_out_of_order_data=false
+
+    # When a certain amount of insert ahead log is reached, it will be flushed to disk
+    # It is possible to lose at most flush_wal_threshold operations
+    flush_wal_threshold=10000
+
+    # The cycle when insert ahead log is periodically forced to be written to disk(in milliseconds)
+    # If force_wal_period_in_ms = 0 it means force insert ahead log to be written to disk after each refreshment
+    # Set this parameter to 0 may slow down the ingestion on slow disk.
+    force_wal_period_in_ms=100
+
+    ####################
+    ### Directory Configuration
+    ####################
+
+    # system dir
+    # If this property is unset, system will save the data in the default relative path directory under the IoTDB folder(i.e., %IOTDB_HOME%/data/system).
+    # If it is absolute, system will save the data in exact location it points to.
+    # If it is relative, system will save the data in the relative path directory it indicates under the IoTDB folder.
+    # For windows platform
+    # If its prefix is a drive specifier followed by "\\", or if its prefix is "\\\\", then the path is absolute. Otherwise, it is relative.
+    # system_dir=data\\system
+    # For Linux platform
+    # If its prefix is "/", then the path is absolute. Otherwise, it is relative.
+    # system_dir=data/system
+
+
+    # data dirs
+    # If this property is unset, system will save the data in the default relative path directory under the IoTDB folder(i.e., %IOTDB_HOME%/data/data).
+    # If it is absolute, system will save the data in exact location it points to.
+    # If it is relative, system will save the data in the relative path directory it indicates under the IoTDB folder.
+    # Note: If data_dir is assigned an empty string(i.e.,zero-size), it will be handled as a relative path.
+    # For windows platform
+    # If its prefix is a drive specifier followed by "\\", or if its prefix is "\\\\", then the path is absolute. Otherwise, it is relative.
+    # data_dirs=data\\data
+    # For Linux platform
+    # If its prefix is "/", then the path is absolute. Otherwise, it is relative.
+    # data_dirs=data/data
+
+
+    # mult_dir_strategy
+    # The strategy is used to choose a directory from tsfile_dir for the system to store a new tsfile.
+    # System provides three strategies to choose from, or user can create his own strategy by extending org.apache.iotdb.db.conf.directories.strategy.DirectoryStrategy.
+    # The info of the three strategies are as follows:
+    # 1. SequenceStrategy: the system will choose the directory in sequence.
+    # 2. MaxDiskUsableSpaceFirstStrategy: the system will choose the directory whose disk has the maximum space.
+    # 3. MinFolderOccupiedSpaceFirstStrategy: the system will choose the directory whose folder has the minimum occupied space.
+    # 4. RandomOnDiskUsableSpaceStrategy: the system will randomly choose the directory based on usable space of disks. The more usable space, the greater the chance of being chosen;
+    # Set SequenceStrategy,MaxDiskUsableSpaceFirstStrategy and MinFolderOccupiedSpaceFirstStrategy to apply the corresponding strategy.
+    # If this property is unset, system will use MaxDiskUsableSpaceFirstStrategy as default strategy.
+    # For this property, fully-qualified class name (include package name) and simple class name are both acceptable.
+    # multi_dir_strategy=MaxDiskUsableSpaceFirstStrategy
+
+
+    # wal dir
+    # If this property is unset, system will save the data in the default relative path directory under the IoTDB folder(i.e., %IOTDB_HOME%/data).
+    # If it is absolute, system will save the data in the exact location it points to.
+    # If it is relative, system will save the data in the relative path directory it indicates under the IoTDB folder.
+    # Note: If wal_dir is assigned an empty string(i.e.,zero-size), it will be handled as a relative path.
+    # For windows platform
+    # If its prefix is a drive specifier followed by "\\", or if its prefix is "\\\\", then the path is absolute. Otherwise, it is relative.
+    # wal_dir=data\\wal
+    # For Linux platform
+    # If its prefix is "/", then the path is absolute. Otherwise, it is relative.
+    # wal_dir=data/wal
+
+
+    # TSFile storage file system. Currently, Tsfile are supported to be stored in LOCAL file system or HDFS.
+    tsfile_storage_fs=LOCAL
+
+    # If using HDFS, the absolute file path of Hadoop core-site.xml should be configured
+    core_site_path=/etc/hadoop/conf/core-site.xml
+
+    # If using HDFS, the absolute file path of Hadoop hdfs-site.xml should be configured
+    hdfs_site_path=/etc/hadoop/conf/hdfs-site.xml
+
+    # If using HDFS, hadoop ip can be configured. If there are more than one hdfs_ip, Hadoop HA is used
+    hdfs_ip=localhost
+
+    # If using HDFS, hadoop port can be configured
+    hdfs_port=9000
+
+    # If there are more than one hdfs_ip, Hadoop HA is used. Below are configuration for HA
+    # If using Hadoop HA, nameservices of hdfs can be configured
+    dfs_nameservices=hdfsnamespace
+
+    # If using Hadoop HA, namenodes under dfs nameservices can be configured
+    dfs_ha_namenodes=nn1,nn2
+
+    # If using Hadoop HA, automatic failover can be enabled or disabled
+    dfs_ha_automatic_failover_enabled=true
+
+    # If using Hadoop HA and enabling automatic failover, the proxy provider can be configured
+    dfs_client_failover_proxy_provider=org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+
+    # If using kerberos to authenticate hdfs, this should be true
+    hdfs_use_kerberos=false
+
+    # Full path of kerberos keytab file
+    kerberos_keytab_file_path=/path
+
+    # Kerberos pricipal
+    kerberos_principal=your principal
+
+
+    ####################
+    ### Storage Engine Configuration
+    ####################
+
+    # Use this value to set timestamp precision as "ms", "us" or "ns".
+    # Once the precision is been set, it can not be changed.
+    timestamp_precision=ms
+
+    # Default TTL for storage groups that are not set TTL by statements, in ms. If not set (default),
+    # the TTL will be unlimited.
+    # Notice: if this property is changed, previous created storage group which are not set TTL will
+    # also be affected. And negative values are accepted, which means you can only insert future
+    # data.
+    # default_ttl=36000000
+
+    # Size of log buffer in each log node(in byte).
+    # If WAL is enabled and the size of a insert plan is smaller than this parameter, then the insert plan will be rejected by WAL
+    # If it sets a value smaller than 0, use the default value 16777216
+    wal_buffer_size=16777216
+
+    # When a TsFile's file size (in byte) exceeds this, the TsFile is forced closed.
+    # It may cause memTable size smaller if it is a large value
+    tsfile_size_threshold=1
+
+    # When a memTable's size (in byte) exceeds this, the memtable is flushed to disk. The default threshold is 256 MB.
+    memtable_size_threshold=268435456
+
+    # When the average point number of timeseries in memtable exceeds this, the memtable is flushed to disk. The default threshold is 10000.
+    avg_series_point_number_threshold=10000
+
+    # How many threads can concurrently flush. When <= 0, use CPU core number.
+    concurrent_flush_thread=0
+
+    # How many threads can concurrently query. When <= 0, use CPU core number.
+    concurrent_query_thread=0
+
+    # whether take over the memory management by IoTDB rather than JVM when serializing memtable as bytes in memory
+    # (i.e., whether use ChunkBufferPool), value true, false
+    chunk_buffer_pool_enable=false
+
+    # The amount of data iterate each time in server (the number of data strips, that is, the number of different timestamps.)
+    batch_size=100000
+
+    # max size for tag and attribute of one time series
+    # the unit is byte
+    tag_attribute_total_size=700
+
+    # In one insert (one device, one timestamp, multiple measurements),
+    # if enable partial insert, one measurement failure will not impact other measurements
+    enable_partial_insert=true
+
+    # Whether to enable MTree snapshot. Default false in 0.11.1
+    enable_mtree_snapshot=false
+
+    # The least interval line numbers of mlog.txt when creating a checkpoint and saving snapshot of MTree.
+    # Only take effect when enable_mtree_snapshot=true. Unit: line numbers
+    mtree_snapshot_interval=100000
+
+    # Threshold interval time of MTree modification. Unit: second. Default: 1 hour(3600 seconds)
+    # If the last modification time is less than this threshold, MTree snapshot will not be created
+    # Only take effect when enable_mtree_snapshot=true.
+    mtree_snapshot_threshold_time=3600
+
+    ####################
+    ### Memory Control Configuration
+    ####################
+
+    # Whether to enable memory control
+    enable_mem_control=true
+
+    # Memory Allocation Ratio: Write, Read, Schema and Free Memory.
+    # The parameter form is a:b:c:d, where a, b, c and d are integers. for example: 1:1:1:1 , 6:2:1:1
+    # If you have high level of writing pressure and low level of reading pressure, please adjust it to for example 6:1:1:2
+    write_read_schema_free_memory_proportion=4:3:1:2
+
+    # primitive array size (length of each array) in array pool
+    primitive_array_size=32
+
+    # Ratio of write memory for invoking flush disk, 0.4 by default
+    # If you have extremely high write load (like batch=1000), it can be set lower than the default value like 0.2
+    flush_proportion=0.4
+
+    # Ratio of write memory allocated for buffered arrays, 0.6 by default
+    buffered_arrays_memory_proportion=0.6
+
+    # Ratio of write memory for rejecting insertion, 0.8 by default
+    # If you have extremely high write load (like batch=1000) and the physical memory size is large enough,
+    # it can be set higher than the default value like 0.9
+    reject_proportion=0.8
+
+    # If memory (in byte) of storage group increased more than this threshold, report to system. The default value is 16MB
+    storage_group_report_threshold=16777216
+
+    # allowed max numbers of deduplicated path in one query
+    # it's just an advised value, the real limitation will be the smaller one between this and the one we calculated
+    max_deduplicated_path_num=1000
+
+    # When an inserting is rejected, waiting time (in ms) to check the status again, 50 by default.
+    # If the insertion has been rejected and the read load is low, it can be set larger
+    check_period_when_insert_blocked=50
+
+    # When the waiting time (in ms) of an inserting exceeds this, throw an exception. 10000 by default.
+    # If the insertion has been rejected and the read load is low, it can be set larger
+    max_waiting_time_when_insert_blocked=10000
+
+    # estimated metadata size (in byte) of one timeseries in Mtree
+    estimated_series_size=300
+
+    # size of encodingTaskQueue. The default value is 2147483647
+    encoding_task_queue_size_for_flushing=2147483647
+
+    # size of ioTaskQueue. The default value is 2147483647
+    io_task_queue_size_for_flushing=2147483647
+
+    ####################
+    ### Upgrade Configurations
+    ####################
+
+    # When there exists old version(0.9.x/v1) data, how many thread will be set up to perform upgrade tasks, 1 by default.
+    # Set to 1 when less than or equal to 0.
+    upgrade_thread_num=1
+
+
+    ####################
+    ### Query Configurations
+    ####################
+
+    # the default time period that used in fill query, -1 by default means infinite past time, in ms
+    default_fill_interval=-1
+
+    ####################
+    ### Merge Configurations
+    ####################
+    # LEVEL_COMPACTION, NO_COMPACTION
+    compaction_strategy=LEVEL_COMPACTION
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # Whether to merge unseq files into seq files or not.
+    enable_unseq_compaction = true
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # Whether to start next compaction task automatically after finish one compaction task
+    # enable_continuous_compaction=true
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # The max seq file num of each level.
+    # When the num of files in one level exceeds this,
+    # the files in this level will merge to one and put to upper level.
+    seq_file_num_in_each_level=6
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # The max num of seq level.
+    seq_level_num=3
+
+    # Works when compaction_strategy is LEVEL_COMPACTION.
+    # The max ujseq file num of each level.
+    # When the num of files in one level exceeds this,
+    # the files in this level will merge to one and put to upper level.
+    unseq_file_num_in_each_level=10
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # The max num of unseq level.
+    unseq_level_num=1
+
+    # Works when compaction_strategy is LEVEL_COMPACTION.
+    # The max open file num in each unseq compaction task.
+    # We use the unseq file num as the open file num
+    # This parameters have to be much smaller than the permitted max open file num of each process controlled by operator system(65535 in most system)
+    # Datatype: int
+    # max_open_file_num_in_each_unseq_compaction=2000
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # When the average point number of chunks in the target file reaches this, merge the file to the top level.
+    # During a merge, if a chunk with less number of points than this parameter, the chunk will be
+    # merged with its succeeding chunks even if it is not overflowed, until the merged chunks reach
+    # this threshold and the new chunk will be flushed.
+    # When less than 0, this mechanism is disabled.
+    merge_chunk_point_number=100000
+
+    # Works when the compaction_strategy is LEVEL_COMPACTION.
+    # When point number of a page reaches this, use "append merge" instead of "deserialize merge".
+    merge_page_point_number=100
+
+    # How many threads will be set up to perform unseq merge chunk sub-tasks, 4 by default.
+    # Set to 1 when less than or equal to 0.
+    merge_chunk_subthread_num=4
+
+    # If one merge file selection runs for more than this time, it will be ended and its current
+    # selection will be used as final selection. Unit: millis.
+    # When < 0, it means time is unbounded.
+    merge_fileSelection_time_budget=30000
+
+    # How much memory may be used in ONE merge task (in byte), 10% of maximum JVM memory by default.
+    # This is only a rough estimation, starting from a relatively small value to avoid OOM.
+    # Each new merge thread may take such memory, so merge_thread_num * merge_memory_budget is the
+    # total memory estimation of merge.
+    # merge_memory_budget=2147483648
+
+    # When set to true, if some crashed merges are detected during system rebooting, such merges will
+    # be continued, otherwise, the unfinished parts of such merges will not be continued while the
+    # finished parts still remains as they are.
+    # If you are feeling the rebooting is too slow, set this to false, false by default
+    continue_merge_after_reboot=false
+
+    # When set to true, all unseq merges becomes full merge (the whole SeqFiles are re-written despite how
+    # much they are overflowed). This may increase merge overhead depending on how much the SeqFiles
+    # are overflowed.
+    force_full_merge=false
+
+    # How many threads will be set up to perform compaction, 10 by default.
+    # Set to 1 when less than or equal to 0.
+    compaction_thread_num=10
+
+    # The limit of write throughput merge can reach per second
+    merge_write_throughput_mb_per_sec=8
+
+    ####################
+    ### Metadata Cache Configuration
+    ####################
+
+    # whether to cache meta data(ChunkMetadata and TimeSeriesMetadata) or not.
+    meta_data_cache_enable=true
+    # Read memory Allocation Ratio: ChunkMetadataCache, ChunkCache, TimeSeriesMetadataCache, memory used for constructing QueryDataSet and Free Memory Used in Query.
+    # The parameter form is a:b:c:d:e, where a, b, c, d and e are integers. for example: 1:1:1:1:1 , 1:1:1:3:4
+    chunkmeta_chunk_timeseriesmeta_free_memory_proportion=1:1:1:3:4
+
+    # cache size for MManager.
+    # This cache is used to improve insert speed where all path check and TSDataType will be cached in MManager with corresponding Path.
+    metadata_node_cache_size=300000
+
+    ####################
+    ### LAST Cache Configuration
+    ####################
+
+    # Whether to enable LAST cache
+    enable_last_cache=true
+
+    ####################
+    ### Statistics Monitor configuration
+    ####################
+
+    # Set enable_stat_monitor true(or false) to enable(or disable) the StatMonitor that stores statistics info periodically.
+    # back_loop_period_sec decides the period when StatMonitor writes statistics info into IoTDB.
+    # stat_monitor_detect_freq_sec decides when IoTDB detects statistics info out-of-date.
+    # IoTDB just keeps statistics info within stat_monitor_retain_interval_sec seconds before current time.
+    # Note: IoTDB requires stat_monitor_detect_freq_sec >= 600s and stat_monitor_retain_interval_sec >= 600s.
+    # The monitor, which writes statistics info to IoTDB periodically, is disabled by default.
+    enable_stat_monitor=false
+
+    # The period that StatMonitor stores statistics info, the time unit is seconds.
+    back_loop_period_in_second=5
+
+    # The interval at which StatMonitor starts to check whether statistics info can be deleted due to exceeding the retention volume.
+    # The time unit is seconds.
+    stat_monitor_detect_freq_in_second=600
+
+    # The minimum age of statistics storage information to be eligible for deletion due to age.
+    # The time unit is seconds.
+    stat_monitor_retain_interval_in_second=600
+
+    ####################
+    ### External sort Configuration
+    ####################
+    # Is external sort enable
+    enable_external_sort=true
+
+    # The maximum number of simultaneous chunk reading for a single time series.
+    # If the num of simultaneous chunk reading is greater than external_sort_threshold, external sorting is used.
+    # When external_sort_threshold increases, the number of chunks sorted at the same time in memory may increase and this will occupy more memory.
+    # When external_sort_threshold decreases, triggering external sorting will increase the time-consuming.
+    external_sort_threshold = 1000
+
+
+    ####################
+    ### Sync Server Configuration
+    ####################
+
+    # Whether to open the sync_server_port for receiving data from sync client, the default is closed
+    is_sync_enable=false
+
+    # Sync server port to listen
+    sync_server_port=5555
+
+    # White IP list of Sync client.
+    # Please use the form of network segment to present the range of IP, for example: 192.168.0.0/16
+    # If there are more than one IP segment, please separate them by commas
+    # The default is to allow all IP to sync
+    ip_white_list=0.0.0.0/0
+
+    ####################
+    ### performance statistic configuration
+    ####################
+
+    # Is stat performance of sub-module enable
+    enable_performance_stat=false
+    # The interval of display statistic result in ms.
+    performance_stat_display_interval=60000
+    # The memory used for performance_stat in kb.
+    performance_stat_memory_in_kb=20
+    # Is performance tracing enable
+    enable_performance_tracing=false
+
+
+    ####################
+    ### Configurations for watermark module
+    ####################
+    watermark_module_opened=false
+    watermark_secret_key=IoTDB*2019@Beijing
+    watermark_bit_string=100101110100
+    watermark_method=GroupBasedLSBMethod(embed_row_cycle=2,embed_lsb_num=5)
+
+
+    ####################
+    ### Configurations for creating schema automatically
+    ####################
+
+    # Whether creating schema automatically is enabled
+    enable_auto_create_schema=true
+
+    # Storage group level when creating schema automatically is enabled
+    # e.g. root.sg0.d1.s2
+    #      we will set root.sg0 as the storage group if storage group level is 1
+    default_storage_group_level=1
+
+    # ALL data types: BOOLEAN, INT32, INT64, FLOAT, DOUBLE, TEXT
+
+    # register time series as which type when receiving boolean string "true" or "false"
+    boolean_string_infer_type=BOOLEAN
+
+    # register time series as which type when receiving an integer string "67"
+    integer_string_infer_type=FLOAT
+
+    # register time series as which type when receiving an integer string and using float may lose precision
+    # num > 2 ^ 24
+    long_string_infer_type=DOUBLE
+
+    # register time series as which type when receiving a floating number string "6.7"
+    floating_string_infer_type=FLOAT
+
+    # register time series as which type when receiving the Literal NaN. Values can be DOUBLE, FLOAT or TEXT
+    nan_string_infer_type=DOUBLE
+
+
+    # BOOLEAN encoding when creating schema automatically is enabled
+    default_boolean_encoding=RLE
+
+    # INT32 encoding when creating schema automatically is enabled
+    default_int32_encoding=RLE
+
+    # INT64 encoding when creating schema automatically is enabled
+    default_int64_encoding=RLE
+
+    # FLOAT encoding when creating schema automatically is enabled
+    default_float_encoding=GORILLA
+
+    # DOUBLE encoding when creating schema automatically is enabled
+    default_double_encoding=GORILLA
+
+    # TEXT encoding when creating schema automatically is enabled
+    default_text_encoding=PLAIN
+
+    ####################
+    ### Configurations for tsfile-format
+    ####################
+
+    group_size_in_byte=134217728
+
+    # The memory size for each series writer to pack page, default value is 64KB
+    page_size_in_byte=65536
+
+    # The maximum number of data points in a page, default 1024*1024
+    max_number_of_points_in_page=1048576
+
+    # Data type configuration
+    # Data type for input timestamp, supports INT32 or INT64
+    time_series_data_type=INT64
+
+    # Max size limitation of input string
+    max_string_length=128
+
+    # Floating-point precision
+    float_precision=2
+
+    # Encoder configuration
+    # Encoder of time series, supports TS_2DIFF, PLAIN and RLE(run-length encoding), REGULAR and default value is TS_2DIFF
+    time_encoder=TS_2DIFF
+
+    # Encoder of value series. default value is PLAIN.
+    # For int, long data type, also supports TS_2DIFF and RLE(run-length encoding) and GORILLA.
+    # For float, double data type, also supports TS_2DIFF, RLE(run-length encoding) and GORILLA.
+    # For text data type, only supports PLAIN.
+    value_encoder=PLAIN
+
+    # Compression configuration
+    # Data compression method, supports UNCOMPRESSED, SNAPPY or LZ4. Default value is SNAPPY
+    compressor=SNAPPY
+
+    # Maximum degree of a metadataIndex node, default value is 1024
+    max_degree_of_index_node=1024
+
+    # time interval in minute for calculating query frequency
+    frequency_interval_in_minute=1
+
+    # time cost(ms) threshold for slow query
+    slow_query_threshold=5000
+
+    # if the debug_state is true, we will print more details about the process of query
+    debug_state=false
+
+    ####################
+    ### MQTT Broker Configuration
+    ####################
+
+    # whether to enable the mqtt service.
+    enable_mqtt_service=false
+
+    # the mqtt service binding host.
+    mqtt_host=0.0.0.0
+
+    # the mqtt service binding port.
+    mqtt_port=1883
+
+    # the handler pool size for handing the mqtt messages.
+    mqtt_handler_pool_size=1
+
+    # the mqtt message payload formatter.
+    mqtt_payload_formatter=json
+
+    # max length of mqtt message in byte
+    mqtt_max_message_size=1048576
+
+    ####################
+    ### Authorization Configuration
+    ####################
+
+    #which class to serve for authorization. By default, it is LocalFileAuthorizer.
+    #Another choice is org.apache.iotdb.db.auth.authorizer.OpenIdAuthorizer
+    authorizer_provider_class=org.apache.iotdb.db.auth.authorizer.LocalFileAuthorizer
+
+
+    #If OpenIdAuthorizer is enabled, then openID_url must be set.
+
+    #openID_url=
+
+    # whether enable data partition. If disabled, all data belongs to partition 0
+    enable_partition=false
+
+    # time range for partitioning data inside each storage group, the unit is second
+    partition_interval=604800
+  iotdb-env.sh: |+
+    #!/bin/bash
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    # You can put your env variable here
+    # export JAVA_HOME=$JAVA_HOME
+
+    calculate_heap_sizes()
+    {{
+        case "`uname`" in
+            Linux)
+                system_memory_in_mb=`free -m| sed -n '2p' | awk '{{print $2}}'`
+                system_cpu_cores=`egrep -c 'processor([[:space:]]+):.*' /proc/cpuinfo`
+            ;;
+            FreeBSD)
+                system_memory_in_bytes=`sysctl hw.physmem | awk '{{print $2}}'`
+                system_memory_in_mb=`expr $system_memory_in_bytes / 1024 / 1024`
+                system_cpu_cores=`sysctl hw.ncpu | awk '{{print $2}}'`
+            ;;
+            SunOS)
+                system_memory_in_mb=`prtconf | awk '/Memory size:/ {{print $3}}'`
+                system_cpu_cores=`psrinfo | wc -l`
+            ;;
+            Darwin)
+                system_memory_in_bytes=`sysctl hw.memsize | awk '{{print $2}}'`
+                system_memory_in_mb=`expr $system_memory_in_bytes / 1024 / 1024`
+                system_cpu_cores=`sysctl hw.ncpu | awk '{{print $2}}'`
+            ;;
+            *)
+                # assume reasonable defaults for e.g. a modern desktop or
+                # cheap server
+                system_memory_in_mb="2048"
+                system_cpu_cores="2"
+            ;;
+        esac
+
+        # some systems like the raspberry pi don't report cores, use at least 1
+        if [ "$system_cpu_cores" -lt "1" ]
+        then
+            system_cpu_cores="1"
+        fi
+
+        # set max heap size based on the following
+        # max(min(1/2 ram, 1024MB), min(1/4 ram, 8GB))
+        # calculate 1/2 ram and cap to 1024MB
+        # calculate 1/4 ram and cap to 8192MB
+        # pick the max
+        half_system_memory_in_mb=`expr $system_memory_in_mb / 2`
+        quarter_system_memory_in_mb=`expr $half_system_memory_in_mb / 2`
+        if [ "$half_system_memory_in_mb" -gt "1024" ]
+        then
+            half_system_memory_in_mb="1024"
+        fi
+        if [ "$quarter_system_memory_in_mb" -gt "8192" ]
+        then
+            quarter_system_memory_in_mb="8192"
+        fi
+        if [ "$half_system_memory_in_mb" -gt "$quarter_system_memory_in_mb" ]
+        then
+            max_heap_size_in_mb="$half_system_memory_in_mb"
+        else
+            max_heap_size_in_mb="$quarter_system_memory_in_mb"
+        fi
+        MAX_HEAP_SIZE="${{max_heap_size_in_mb}}M"
+
+        # Young gen: min(max_sensible_per_modern_cpu_core * num_cores, 1/4 * heap size)
+        max_sensible_yg_per_core_in_mb="100"
+        max_sensible_yg_in_mb=`expr $max_sensible_yg_per_core_in_mb "*" $system_cpu_cores`
+
+        desired_yg_in_mb=`expr $max_heap_size_in_mb / 4`
+
+        if [ "$desired_yg_in_mb" -gt "$max_sensible_yg_in_mb" ]
+        then
+            HEAP_NEWSIZE="${{max_sensible_yg_in_mb}}M"
+        else
+            HEAP_NEWSIZE="${{desired_yg_in_mb}}M"
+        fi
+    }}
+
+
+    # find java in JAVA_HOME
+    if [ -n "$JAVA_HOME" ]; then
+        for java in "$JAVA_HOME"/bin/amd64/java "$JAVA_HOME"/bin/java; do
+            if [ -x "$java" ]; then
+                JAVA="$java"
+                break
+            fi
+        done
+    else
+        JAVA=java
+    fi
+
+    if [ -z $JAVA ] ; then
+        echo Unable to find java executable. Check JAVA_HOME and PATH environment variables.  > /dev/stderr
+        exit 1;
+    fi
+
+    # Determine the sort of JVM we'll be running on.
+    java_ver_output=`"$JAVA" -version 2>&1`
+    jvmver=`echo "$java_ver_output" | grep '[openjdk|java] version' | awk -F'"' 'NR==1 {{print $2}}' | cut -d\- -f1`
+    JVM_VERSION=${{jvmver%_*}}
+    JVM_PATCH_VERSION=${{jvmver#*_}}
+    if [ "$JVM_VERSION" \< "1.8" ] ; then
+        echo "IoTDB requires Java 8u40 or later."
+        exit 1;
+    fi
+
+    if [ "$JVM_VERSION" \< "1.8" ] && [ "$JVM_PATCH_VERSION" -lt 40 ] ; then
+        echo "IoTDB requires Java 8u40 or later."
+        exit 1;
+    fi
+
+    version_arr=(${{JVM_VERSION//./ }})
+
+    #GC log path has to be defined here because it needs to access CASSANDRA_HOME
+    if [ "${{version_arr[0]}}" = "1" ] ; then
+        # Java 8
+        MAJOR_VERSION=${{version_arr[1]}}
+        echo "$IOTDB_JMX_OPTS" | grep -q "^-[X]loggc"
+        if [ "$?" = "1" ] ; then # [X] to prevent ccm from replacing this line
+            # only add -Xlog:gc if it's not mentioned in jvm-server.options file
+            mkdir -p ${{IOTDB_HOME}}/logs
+            if [ "$#" -ge "1" -a "$1" == "printgc" ]; then
+                IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Xloggc:${{IOTDB_HOME}}/logs/gc.log  -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=10M"
+            fi
+        fi
+    else
+        #JDK 11 and others
+        MAJOR_VERSION=${{version_arr[0]}}
+        # See description of https://bugs.openjdk.java.net/browse/JDK-8046148 for details about the syntax
+        # The following is the equivalent to -XX:+PrintGCDetails -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=10M
+        echo "$IOTDB_JMX_OPTS" | grep -q "^-[X]log:gc"
+        if [ "$?" = "1" ] ; then # [X] to prevent ccm from replacing this line
+            # only add -Xlog:gc if it's not mentioned in jvm-server.options file
+            mkdir -p ${{IOTDB_HOME}}/logs
+            if [ "$#" -ge "1" -a "$1" == "printgc" ]; then
+                IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Xlog:gc=info,heap*=info,age*=info,safepoint=info,promotion*=info:file=${{IOTDB_HOME}}/logs/gc.log:time,uptime,pid,tid,level:filecount=10,filesize=10485760"
+            fi
+        fi
+    fi
+
+
+
+    calculate_heap_sizes
+
+    ## Set heap size by percentage of total memory
+    #max_percentage=90
+    #min_percentage=50
+    #MAX_HEAP_SIZE="`expr $system_memory_in_mb \* $max_percentage / 100`M"
+    #HEAP_NEWSIZE="`expr $system_memory_in_mb \* $min_percentage / 100`M"
+
+    # Maximum heap size
+    #MAX_HEAP_SIZE="2G"
+    # Minimum heap size
+    #HEAP_NEWSIZE="2G"
+    # maximum direct memory size
+    MAX_DIRECT_MEMORY_SIZE=${{MAX_HEAP_SIZE}}
+
+    #true or false
+    #DO NOT FORGET TO MODIFY THE PASSWORD FOR SECURITY (${{IOTDB_CONF}}/jmx.password and ${{IOTDB_CONF}}/jmx.access)
+    JMX_LOCAL="true"
+
+    JMX_PORT="31999"
+    #only take effect when the jmx_local=false
+    #You need to change this IP as a public IP if you want to remotely connect IoTDB by JMX.
+    # 0.0.0.0 is not allowed
+    JMX_IP="127.0.0.1"
+
+    if [ ${{JMX_LOCAL}} = "false" ]; then
+      echo "setting remote JMX..."
+      #you may have no permission to run chmod. If so, contact your system administrator.
+      chmod 600 ${{IOTDB_CONF}}/jmx.password
+      chmod 600 ${{IOTDB_CONF}}/jmx.access
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.port=$JMX_PORT"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.rmi.port=$JMX_PORT"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Djava.rmi.server.randomIDs=true"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.authenticate=true"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.authenticate=true"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.password.file=${{IOTDB_CONF}}/jmx.password"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Dcom.sun.management.jmxremote.access.file=${{IOTDB_CONF}}/jmx.access"
+      IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Djava.rmi.server.hostname=$JMX_IP"
+    else
+      echo "setting local JMX..."
+    fi
+
+
+    IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Xms${{HEAP_NEWSIZE}}"
+    IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -Xmx${{MAX_HEAP_SIZE}}"
+    IOTDB_JMX_OPTS="$IOTDB_JMX_OPTS -XX:MaxDirectMemorySize=${{MAX_DIRECT_MEMORY_SIZE}}"
+
+    echo "Maximum memory allocation pool = ${{MAX_HEAP_SIZE}}B, initial memory allocation pool = ${{HEAP_NEWSIZE}}B"
+    echo "If you want to change this configuration, please check conf/iotdb-env.sh(Unix or OS X, if you use Windows, check conf/iotdb-env.bat)."
+
+  iotdb-sync-client.properties: |
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    # Sync receiver server address
+    server_ip=127.0.0.1
+
+    # Sync receiver server port
+    server_port=5555
+
+    # The period time of sync process, the time unit is second.
+    sync_period_in_second=600
+
+    # This parameter represents storage groups that participate in the synchronization task, which distinguishes each storage group by comma.
+    # If the list is empty, it means that all storage groups participate in synchronization.
+    # By default, it is empty list.
+    # sync_storage_groups = root.sg1, root.sg2
+
+    # The maximum number of retry when syncing a file to receiver fails.
+    max_number_of_sync_file_retry=5
+  jmx.access: |
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    # see https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html#gdeup
+    iotdb readonly
+    root readwrite
+  jmx.password: |-
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    # see https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html#gdeup
+    iotdb passw!d
+    root  passw!d
+  logback-tool.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one
+        or more contributor license agreements.  See the NOTICE file
+        distributed with this work for additional information
+        regarding copyright ownership.  The ASF licenses this file
+        to you under the Apache License, Version 2.0 (the
+        "License"); you may not use this file except in compliance
+        with the License.  You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing,
+        software distributed under the License is distributed on an
+        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+        KIND, either express or implied.  See the License for the
+        specific language governing permissions and limitations
+        under the License.
+
+    -->
+    <configuration/>
+  logback.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one
+        or more contributor license agreements.  See the NOTICE file
+        distributed with this work for additional information
+        regarding copyright ownership.  The ASF licenses this file
+        to you under the Apache License, Version 2.0 (the
+        "License"); you may not use this file except in compliance
+        with the License.  You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing,
+        software distributed under the License is distributed on an
+        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+        KIND, either express or implied.  See the License for the
+        specific language governing permissions and limitations
+        under the License.
+
+    -->
+    <configuration scan="true" scanPeriod="60 seconds">
+        <jmxConfigurator/>
+        <!-- prevent logback from outputting its own status at the start of every log -->
+        <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILEERROR">
+            <file>${{IOTDB_HOME}}/logs/log_error.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-error.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>10MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <level>error</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILEWARN">
+            <file>${{IOTDB_HOME}}/logs/log_warn.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-warn.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>1MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <level>WARN</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILEINFO">
+            <file>${{IOTDB_HOME}}/logs/log_info.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-info.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <level>INFO</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILEDEBUG">
+            <file>${{IOTDB_HOME}}/logs/log_debug.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-debug.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <level>DEBUG</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.ConsoleAppender" name="stdout">
+            <Target>System.out</Target>
+            <encoder>
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>DEBUG</level>
+            </filter>
+        </appender>
+        <!-- a log appender that collect all log records whose level is greather than debug-->
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILEALL">
+            <file>${{IOTDB_HOME}}/logs/log_all.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-all.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE_COST_MEASURE">
+            <file>${{IOTDB_HOME}}/logs/log_measure.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-measure.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="SYNC">
+            <file>${{IOTDB_HOME}}/logs/log_sync.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-sync.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="AUDIT">
+            <file>${{IOTDB_HOME}}/logs/log_audit.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-audit.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="QUERY_DEBUG">
+            <file>${{IOTDB_HOME}}/logs/log_query_debug.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-query-debug-%d{{yyyy-MM-dd}}.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="SLOW_SQL">
+            <file>${{IOTDB_HOME}}/logs/log_slow_sql.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-slow-sql-%d{{yyyy-MM-dd}}.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="QUERY_FREQUENCY">
+            <file>${{IOTDB_HOME}}/logs/log_query_frequency.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>${{IOTDB_HOME}}/logs/log-query-frequency-%d{{yyyy-MM-dd}}.%i.log</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>50MB</maxFileSize>
+            </triggeringPolicy>
+            <append>true</append>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d [%t] %-5p %C:%L - %m %n</pattern>
+                <charset>utf-8</charset>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </appender>
+        <root level="info">
+            <appender-ref ref="FILEDEBUG"/>
+            <appender-ref ref="FILEWARN"/>
+            <appender-ref ref="FILEERROR"/>
+            <appender-ref ref="FILEINFO"/>
+            <appender-ref ref="FILEALL"/>
+            <appender-ref ref="stdout"/>
+        </root>
+        <logger level="OFF" name="io.moquette.broker.metrics.MQTTMessageLogger"/>
+        <logger level="info" name="org.apache.iotdb.db.service"/>
+        <logger level="info" name="org.apache.iotdb.db.conf"/>
+        <logger level="info" name="org.apache.iotdb.db.cost.statistic">
+            <appender-ref ref="FILE_COST_MEASURE"/>
+        </logger>
+        <logger level="info" name="org.apache.iotdb.db.sync">
+            <appender-ref ref="SYNC"/>
+        </logger>
+        <logger level="info" name="IoTDB_AUDIT_LOGGER">
+            <appender-ref ref="AUDIT"/>
+        </logger>
+        <logger level="info" name="QUERY_DEBUG">
+            <appender-ref ref="QUERY_DEBUG"/>
+        </logger>
+        <logger level="info" name="SLOW_SQL">
+            <appender-ref ref="SLOW_SQL"/>
+        </logger>
+        <logger level="info" name="QUERY_FREQUENCY">
+            <appender-ref ref="QUERY_FREQUENCY"/>
+        </logger>
+    </configuration>
+

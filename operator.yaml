@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iotdb-operator
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      application: iotdb-operator
+  template:
+    metadata:
+      labels:
+        application: iotdb-operator
+    spec:
+      serviceAccountName: iotdb-operator-account
+      containers:
+        - name: the-only-one
+          image: jfeinauer/iotdb-operator
+          imagePullPolicy: Always
