@@ -1,2 +1,2 @@
 kopf==1.33.0
-kubernetes
+kubernetes==18.20.0
