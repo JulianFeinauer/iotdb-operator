@@ -30,3 +30,11 @@ Thus one has to manually
 * Apply it via `kubectl apply -n <namespace> -f operator.yaml`
 
 Then, you can test your installation by submitting the demo release via `kubectl apply -n <namespace> -f release.yaml`.
+
+## Next steps
+
+- [ ] Add all necessary information from child containers (external ip, port, password, ...) to `status` when they are ready
+- [ ] Add Validation for changes on image (and probably also admin pw?)
+- [ ] Add Patching behavior on config entry Changes
+- [ ] Allow support for tcp port sharing (with nginx-ingress)
+- [ ] Allow Support for Cluster
