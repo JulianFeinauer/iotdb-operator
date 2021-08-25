@@ -30,7 +30,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: iotdb-operator
 rules:
-  - apiGroups: ["apps", "", "batch"]
+  - apiGroups: ["apps", "", "batch", "jfeinauer.dev"]
     #  resources: ["pods", "deployments", "statefulsets", "services"]
     resources: ["*"]
     verbs: ["*"]
