@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {name}
+  name: {name}-seeds
 spec:
   selector:
     matchLabels:
       type: iotdb-set
       instance: {name}
   serviceName: {name}
-  replicas: 1 # by default is 1
+  replicas: {seed_node_count}
   template:
     metadata:
       labels:
@@ -19,23 +19,36 @@ spec:
       containers:
         - name: iotdb
           image: {image}
+          imagePullPolicy: Always
           ports:
             - containerPort: 6667
               name: iotdb
+            - containerPort: 6567
+              name: iotdb-cluster
+            - containerPort: 9003
+              name: metaport
+            - containerPort: 40010
+              name: dataservice
+            - containerPort: 40011
+              name: heartbeat
+#          env:
+#            - name: INTERNAL_IP
+#              valueFrom:
+#                fieldRef:
+#                  fieldPath: metadata.name
           volumeMounts:
             - name: storage
               mountPath: /iotdb/data
             - name: config-volume
               mountPath: /iotdb/conf
-          # TODO Improve the Readiness Probe
           readinessProbe:
             tcpSocket:
-              port: 6667
+              port: 9003
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
-              port: 6667
+              port: 9003
             initialDelaySeconds: 10
             periodSeconds: 10
       volumes:

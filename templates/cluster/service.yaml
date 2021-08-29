@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {name}-service
+  labels:
+    type: iotdb-set
+    instance: {name}
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 6667
+      name: iotdb
+    - port: 6567
+      name: iotdb-cluster
+    - port: 9003
+      name: metaport
+    - port: 40010
+      name: dataservice
+    - port: 40011
+      name: heartbeat
+  selector:
+    type: iotdb-set
+    instance: {name}
