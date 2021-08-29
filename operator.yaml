@@ -17,7 +17,7 @@ spec:
       serviceAccountName: iotdb-operator-account
       containers:
         - name: the-only-one
-          image: jfeinauer/iotdb-operator
+          image: jfeinauer/iotdb-operator:latest
           imagePullPolicy: Always
 ---
 apiVersion: v1
