@@ -1,0 +1,43 @@
+# A demo CRD for the Kopf example operators.
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: iotdbclusters.jfeinauer.dev
+spec:
+  scope: Namespaced
+  group: jfeinauer.dev
+  names:
+    kind: IoTDBCluster
+    plural: iotdbclusters
+    singular: iotdbcluster
+    shortNames:
+      - iotdbc
+      - iotdbcs
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                adminPassword:
+                  type: string
+                version:  # Can be 12.2 only at the moment
+                  type: string
+                seedNodes:
+                  type: integer
+                engine-config:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                cluster-properties:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+
