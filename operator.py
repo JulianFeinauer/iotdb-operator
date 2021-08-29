@@ -1,18 +1,21 @@
 import os
+from typing import Optional
+
+import os
+from typing import Optional
 
 import kopf
 import kubernetes as kubernetes
 import yaml
 from kopf import Spec, Status
-from kubernetes.client import V1StatefulSet, V1ConfigMap, CoreV1Api, V1Service, V1Job
+from kubernetes.client import V1StatefulSet, V1ConfigMap, V1Service, V1Job
 
 
-#
-# api = kubernetes.client.CoreV1Api()
-# apps_api = kubernetes.client.AppsV1Api()
-# batch_api = kubernetes.client.BatchV1Api()
-# custom_api = kubernetes.client.CustomObjectsApi()
-# crd_api = kubernetes.client.ApiextensionsV1Api()
+# TODO Enable this together with Admission Control (see Validaation below)
+# @kopf.on.startup()
+# def configure(settings: kopf.OperatorSettings, **_):
+#     settings.admission.server = kopf.WebhookAutoTunnel()
+#     settings.admission.managed = 'jfeinauer.dev'
 
 def patch_status(logger, namespace, name, key, value, group="jfeinauer.dev", version="v1", plural="iotdbreleases"):
     logger.info("Patching status...")
@@ -199,6 +202,81 @@ def get_ressource(filename, **kwargs):
     return data
 
 
+@kopf.on.event("statefulset")
+def statefulset_change(event, logger, status, spec, **_):
+    """
+    Reports changes in the statefulset ("seed pods")
+    """
+    owners = event.get('object').get('metadata').get('ownerReferences')
+
+    if owners:
+        owner = owners[0]
+        kind = owner.get('kind')
+        name = owner.get('name')
+        namespace = event.get('object').get('metadata').get('namespace')
+        if kind == "IoTDBCluster":
+            logger.info(f"Expected replicas {spec.get('replicas')}, currently have {status.get('readyReplicas')}")
+            # Now we can patch the owner
+            patch_status(logger, namespace, name, "seedReplicasTotal", value=spec.get('replicas'), plural="iotdbclusters")
+            patch_status(logger, namespace, name, "seedReplicasReady", value=status.get('readyReplicas'), plural="iotdbclusters")
+
+            if int(spec.get('replicas')) == int(status.get('readyReplicas')):
+                patch_status(logger, namespace, name, "seed_pods_ready", value=True, plural="iotdbclusters")
+            else:
+                patch_status(logger, namespace, name, "seed_replicas_ready", value=False, plural="iotdbclusters")
+
+
+@kopf.on.event("service")
+def service_change(event, logger, status, spec, **_):
+    metadata = event.get('object').get('metadata')
+    owners = metadata.get('ownerReferences')
+
+    if owners:
+        owner = owners[0]
+        kind = owner.get('kind')
+        name = owner.get('name')
+        namespace = metadata.get('namespace')
+
+        if kind == "IoTDBCluster":
+            if spec.get('type') == "LoadBalancer":
+                logger.info(f"Service is {metadata.get('name')}, status is {status}")
+            else:
+                logger.info(f"Service {metadata.get('name')} is headless, skipping...")
+                return
+
+            # status:
+            #     loadBalancer:
+            #     ingress:
+            #     - ip: 85.215.241.207
+            external_ip = None
+            try:
+                external_ip = status.get('loadBalancer').get('ingress')[0].get('ip')
+            except:
+                pass
+
+            logger.info(f"Setting external_ip: {external_ip}")
+            # Patch the status
+            patch_status(logger, namespace, name, "external_ip", value=external_ip, plural="iotdbclusters")
+
+
+@kopf.on.event("job")
+def job_change(event, logger, status, spec, **_):
+    metadata = event.get('object').get('metadata')
+    owners = metadata.get('ownerReferences')
+
+    if owners:
+        owner = owners[0]
+        kind = owner.get('kind')
+        name = owner.get('name')
+        namespace = metadata.get('namespace')
+
+        if kind == "IoTDBCluster":
+            succeeded_count = status.get('succeeded')
+            if not succeeded_count or succeeded_count < 1:
+                patch_status(logger, namespace, name, "initialization_done", value=False, plural="iotdbclusters")
+            else:
+                patch_status(logger, namespace, name, "initialization_done", value=True, plural="iotdbclusters")
+
 @kopf.on.resume('iotdbclusters')
 @kopf.on.create("iotdbclusters")
 def create_or_resume(spec: Spec, name, namespace, logger, status: Status, **kwargs):
@@ -220,6 +298,10 @@ def create_or_resume(spec: Spec, name, namespace, logger, status: Status, **kwar
     if not seed_node_count or seed_node_count < 2:
         raise kopf.PermanentError(f"seedNodes must be set and greater than or equal to 2!.")
 
+    replicas = spec.get("replicas")
+    if not replicas or replicas != seed_node_count:
+        raise kopf.PermanentError(f"replicas must be specified and currently be equal to seed nodes")
+
     logger.info(f"Creating Cluster {name} with {seed_node_count} seed-nodes")
 
     context = {
@@ -229,6 +311,7 @@ def create_or_resume(spec: Spec, name, namespace, logger, status: Status, **kwar
         "version": version,
         "image": image
     }
+    # Add Seed Nodes
     context["seed_nodes"] = ",".join(
         [f"{name}-seeds-{i}.{name}.{namespace}.svc.cluster.local:9003" for i in range(0, seed_node_count)]
     )
@@ -284,27 +367,52 @@ def create_or_resume(spec: Spec, name, namespace, logger, status: Status, **kwar
             # Update status
             patch_status(logger, namespace, name, "seed_node_init_job", hservice.metadata.name, plural="iotdbclusters")
 
+
+# @kopf.on.validate("iotdbclusters")
+# def validate(spec, **_):
+#     """
+#     TODO Add this
+#     :param spec:
+#     :param _:
+#     :return:
+#     """
+#     logging.info("Validating...")
+#     logging.info(f"Spec: {spec}")
+#     for k,v in _.items():
+#         logging.info(f"Ohter: {k} -> {v}")
+#     # Get the object (if it exists)
+#     handler = CustomObjectHandler()
+
+
 class Handler(object):
+    read_verb = "read"
     api_class = None
     object = None
     return_class = None
 
-    def create_or_patch(self, logger, namespace, body) -> return_class:
-        api = self.__class__.api_class()
+    def __init__(self) -> None:
+        self.api = self.__class__.api_class()
+        self.read_method = getattr(self.api, f"{self.__class__.read_verb}_namespaced_{self.__class__.object}")
+        self.patch_method = getattr(self.api, f"patch_namespaced_{self.__class__.object}")
+        self.create_method = getattr(self.api, f"create_namespaced_{self.__class__.object}")
+
+    def create_or_patch(self, logger, namespace, body, **kwargs) -> return_class:
         try:
-            read_method = getattr(api, f"read_namespaced_{self.__class__.object}")
-            read_method(namespace=namespace, name=body["metadata"]["name"])
+            self.read_method(namespace=namespace, name=body["metadata"]["name"], **kwargs)
             # Delete it?!
             # Patch it
             logger.info(f"Patchin existing {self.__class__.object}")
-            patch_method = getattr(api, f"patch_namespaced_{self.__class__.object}")
-            config = patch_method(namespace=namespace, name=body["metadata"]["name"], body=body)
+            config = self.patch_method(namespace=namespace, name=body["metadata"]["name"], body=body, **kwargs)
         except:
             logger.info(f"Creating {self.__class__.object}")
-            create_method = getattr(api, f"create_namespaced_{self.__class__.object}")
-            config = create_method(namespace=namespace, body=body)
+            config = self.create_method(namespace=namespace, body=body, **kwargs)
         return config
 
+    def get(self, namespace, name) -> Optional[return_class]:
+        try:
+            return self.read_method(namespace=namespace, name=name)
+        except:
+            return None
 
 class ConfigMapHandler(Handler):
     api_class = kubernetes.client.CoreV1Api
@@ -329,27 +437,8 @@ class JobHandler(Handler):
     return_class = V1Job
 
 
-# def create_or_patch_configmap(logger, namespace, body) -> V1ConfigMap:
-#     api = kubernetes.client.CoreV1Api()
-#     try:
-#         api.st(namespace=namespace, name=body["metadata"]["name"])
-#         # Patch it
-#         config: V1StatefulSet = api.patch_namespaced_config_map(namespace=namespace, name=body["metadata"]["name"],
-#                                                                 body=body)
-#     except:
-#         logger.info(f"Creating...")
-#         config: V1StatefulSet = api.create_namespaced_config_map(namespace=namespace, body=body)
-#     return config
-#
-#
-# def create_or_patch_configmap(logger, namespace, body) -> V1StatefulSet:
-#     api = kubernetes.client.CoreV1Api()
-#     try:
-#         api.read_namespaced_config_map(namespace=namespace, name=body["metadata"]["name"])
-#         # Patch it
-#         config: V1StatefulSet = api.patch_namespaced_config_map(namespace=namespace, name=body["metadata"]["name"],
-#                                                                 body=body)
-#     except:
-#         logger.info(f"Creating...")
-#         config: V1StatefulSet = api.create_namespaced_config_map(namespace=namespace, body=body)
-#     return config
+class CustomObjectHandler(Handler):
+    read_verb = "get"
+    api_class = kubernetes.client.CustomObjectsApi
+    object = "custom_object"
+    return_class = object

@@ -1,13 +1,14 @@
 apiVersion: jfeinauer.dev/v1
 kind: IoTDBCluster
 metadata:
-  name: c6
+  name: c11
   labels:
     creator: julian
 spec:
   adminPassword: "Hallo"
   version: "0.12.2"
   seedNodes: 2
+  replicas: 2
   # Here you can override any entry from IoTDBs iotdb-engine.properties file
   engine-config:
     enable_wal: "false"
