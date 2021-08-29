@@ -1,9 +1,10 @@
 # Simple IoTDB Operator for Kubernetes
 
+Proof of Concept Implementation of an Operator to provide IoTDB Instances in Kubernetes.
+
 ## Create a Single Node Instance
 
-Proof of Concept Implementation of an Operator to provide IoTDB Instances in Kubernetes.
-An IoTDB Instance can be created by creating a CRD as the following example:
+A single-node IoTDB Instance can be created by creating a CRD as the following example:
 
 ```
 apiVersion: jfeinauer.dev/v1
